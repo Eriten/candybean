@@ -174,12 +174,23 @@ public class WebDriverElement extends Element {
 	 * @param dropControl
 	 *            target of the drag and drop
 	 */
-	public void dragNDrop(WebDriverElement dropControl)
-			throws CandybeanException {
+	public void dragNDrop(WebDriverElement dropControl) throws CandybeanException {
 		logger.info("Dragging element: " + this.toString()
 				+ " to element: " + dropControl.toString());
 		Actions action = new Actions(this.wd);
 		action.dragAndDrop(this.we, dropControl.we).build().perform();
+	}
+
+	/**
+	 * Get the select child of the given the hook of a parent element
+	 *
+	 * @param hook
+	 * 				The hook of the parent element
+	 * @return Return a WebDriverSelector that is the child of the parent element
+	 * @throws CandybeanException
+	 */
+	public Element getSelect(Hook hook) throws CandybeanException {
+		return this.getSelect(hook, 0);
 	}
 
 	 /**
@@ -204,8 +215,21 @@ public class WebDriverElement extends Element {
 	 * 
 	 * @param hook
 	 *				The hook of the parent element
+	 * @return Return a WebDriverSelector that is the child of the parent element
+	 * @throws CandybeanException
+	 */
+	public Element getElement(Hook hook) throws CandybeanException{
+		return this.getElement(hook, 0);
+	}
+
+	/**
+	 * Get the element child of the given the hook of a parent element
+	 *
+	 * @param hook
+	 *				The hook of the parent element
 	 * @param index
 	 *				The index of where the child locates
+	 * @Override
 	 * @return Return a WebDriverSelector that is the child of the parent element
 	 * @throws CandybeanException
 	 */
