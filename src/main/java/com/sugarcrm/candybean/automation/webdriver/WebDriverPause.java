@@ -21,6 +21,7 @@
  */
 package com.sugarcrm.candybean.automation.webdriver;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -44,6 +45,12 @@ public class WebDriverPause extends Pause {
 	public WebDriverElement untilVisible(int timeoutMs) {
 		(new WebDriverWait(this.wde.wd, timeoutMs / 1000)).until(ExpectedConditions
 				.visibilityOf(this.wde.we));
+		return this.wde;
+	}
+	
+	public WebDriverElement untilFrameVisible(int timeoutMs) throws CandybeanException {
+		(new WebDriverWait(this.wde.wd, timeoutMs / 1000)).until(ExpectedConditions
+				.frameToBeAvailableAndSwitchToIt(this.wde.getBy()));
 		return this.wde;
 	}
 	

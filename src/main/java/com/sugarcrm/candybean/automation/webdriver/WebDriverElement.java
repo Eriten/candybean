@@ -23,10 +23,7 @@ package com.sugarcrm.candybean.automation.webdriver;
 
 import java.util.List;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 
 import com.sugarcrm.candybean.automation.element.Element;
@@ -35,6 +32,8 @@ import com.sugarcrm.candybean.automation.element.Location;
 import com.sugarcrm.candybean.automation.element.Pause;
 import com.sugarcrm.candybean.automation.element.Hook.Strategy;
 import com.sugarcrm.candybean.exceptions.CandybeanException;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * Represents an identifiable (via {@link By}) element or element on a page that
@@ -93,11 +92,8 @@ public class WebDriverElement extends Element {
 	public String getAttribute(String attribute) throws CandybeanException {
 		logger.info("Getting attribute: " + attribute
 				+ " for element: " + this.toString());
-		String value = we.getAttribute(attribute);
-		if (value == null)
-			throw new CandybeanException("Attribute does not exist.");
-		else
-			return value;
+		(new WebDriverWait(this.wd, 30000 / 1000)).until(ExpectedConditions.not(ExpectedConditions.stalenessOf(we)));
+		return we.getAttribute(attribute);
 	}
 
 	public String getSource() throws CandybeanException {
@@ -231,7 +227,7 @@ public class WebDriverElement extends Element {
 	}
 
 	/**
-	 * Returns true if and only if the element is displayed {@link http
+	 * Returns true if and only if the element is displayed { http
 	 * ://selenium.googlecode.com/svn/trunk/docs/api/java/index.html according
 	 * to Selenium}
 	 */
@@ -300,8 +296,14 @@ public class WebDriverElement extends Element {
 		// since this
 		// is the only method that does it and it violates the general
 		// architecture
-		this.we = this.wd.findElements(WebDriverElement.By(this.hook)).get(this.index);
+//		this.we = this.wd.findElements(WebDriverElement.By(this.hook)).get(this.index);
+
+		(new WebDriverWait(this.wd, 30000 / 1000)).until(ExpectedConditions.not(ExpectedConditions.stalenessOf(we)));
 		this.we.sendKeys(input);
+	}
+
+	public Point getLocation() {
+		return we.getLocation();
 	}
 
 	/**

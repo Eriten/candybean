@@ -70,6 +70,7 @@ import com.sugarcrm.candybean.utilities.Utils.Pair;
 public abstract class WebDriverInterface extends AutomationInterface {
 	
 	public WebDriver wd = null;
+	private String baseUrl = "";
 	private Stack<Pair<Integer, String>> windows = new Stack<Pair<Integer, String>>();
 	
 	protected WebDriverInterface(Type iType) throws CandybeanException {
@@ -525,8 +526,16 @@ public abstract class WebDriverInterface extends AutomationInterface {
 			return false;
 		}
 	}
-	
-    public class SwipeableWebDriver extends RemoteWebDriver implements HasTouchScreen {
+
+	public String getBaseUrl() {
+		return baseUrl;
+	}
+
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
+	}
+
+	public class SwipeableWebDriver extends RemoteWebDriver implements HasTouchScreen {
 		private RemoteTouchScreen touch;
 
 		public SwipeableWebDriver(URL remoteAddress,
