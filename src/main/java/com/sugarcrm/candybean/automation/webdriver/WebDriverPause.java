@@ -21,36 +21,82 @@
  */
 package com.sugarcrm.candybean.automation.webdriver;
 
-import org.openqa.selenium.support.ui.ExpectedConditions;
+import com.sugarcrm.candybean.automation.element.Hook;
+import org.openqa.selenium.WebDriver;
+
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.sugarcrm.candybean.automation.element.Pause;
-import com.sugarcrm.candybean.automation.webdriver.WebDriverElement;
 import com.sugarcrm.candybean.exceptions.CandybeanException;
 
+import static java.lang.System.currentTimeMillis;
+
 /**
- * Utility class that provides several methods for an element to pause until an
- * action occurs.
+ * Utility class that provides several methods for an element to pause until a
+ * condition is satisfied
+ * @author Eric Tam
  */
-public class WebDriverPause extends Pause {
+public class WebDriverPause<T> {
+	private WebDriver wd;
+	private static final long WD_POLLING_INTERVAL = 5000;
 
-	private WebDriverElement wde;
-
-	public WebDriverPause(WebDriverElement wde) {
-		this.wde = wde;
+	public WebDriverPause(WebDriver wd) {
+		this.wd = wd;
 	}
 
-	@Override
-	public WebDriverElement untilVisible(int timeoutMs) {
-		(new WebDriverWait(this.wde.wd, timeoutMs / 1000)).until(ExpectedConditions
-				.visibilityOf(this.wde.we));
-		return this.wde;
+	/**
+	 * Takes any ExpectedCondition and poll this condition within timeout
+	 * @param timeoutMs	Timeout in Milliseconds
+	 * @param condition	The condition to poll
+	 * @return			Returning the object that is returned from ExpectedCondition when the condition is met
+	 * @throws CandybeanException
+	 */
+	public Object waitUntil(ExpectedCondition condition, long timeoutMs) throws CandybeanException {
+		long wdPollingInterval = WD_POLLING_INTERVAL;
+		if(timeoutMs <= WD_POLLING_INTERVAL) {
+			wdPollingInterval = timeoutMs;
+		}
+
+		// This is done by Double-polling. WebDriverWait waits for wdPollingInterval amount of time.
+		// This is done repetitively as long as the time is still within timeoutMs.
+		final long startTime = currentTimeMillis();
+		CandybeanException toThrow = null;
+		Object toReturn = null;
+		do {
+			try {
+				toReturn = (new WebDriverWait(this.wd, wdPollingInterval / 1000)).until(condition);
+				toThrow = null;
+				break;
+			} catch (WebDriverException wdException) {
+				toThrow = new CandybeanException(wdException.toString());
+			}
+		} while((currentTimeMillis() - startTime) <= timeoutMs);
+
+		if(toThrow != null) {
+			throw toThrow;
+		}
+
+		return toReturn;
 	}
-	
-	public WebDriverElement untilTextPresent(String text, int timeout) 
-			throws CandybeanException {
-		(new WebDriverWait(this.wde.wd, timeout)).until(ExpectedConditions
-				.textToBePresentInElement(this.wde.getBy(), text));
-		return this.wde;
+
+	/**
+	 * Provides a simple method to wait for visible as it is often used
+	 * @param hook
+	 * @param timeoutMs
+	 * @throws CandybeanException
+	 */
+	public void waitForVisible(Hook hook, long timeoutMs) throws CandybeanException {
+		this.waitUntil(WaitConditions.visible(hook), timeoutMs);
+	}
+
+	/**
+	 * Provides a simple method to wait for visible as it is often used
+	 * @param wde
+	 * @param timeoutMs
+	 * @throws CandybeanException
+	 */
+	public void waitForVisible(WebDriverElement wde, long timeoutMs) throws CandybeanException {
+		this.waitUntil(WaitConditions.visible(wde), timeoutMs);
 	}
 }

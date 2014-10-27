@@ -85,6 +85,7 @@ public abstract class WebDriverInterface extends AutomationInterface {
 	 */
 	@Override
 	public void start() throws CandybeanException {
+		// Set implicit wait and timeout parameters
 		long implicitWait = Long.parseLong(candybean.config.getValue("perf.implicit.wait.seconds"));
 		wd.manage().timeouts().implicitlyWait(implicitWait, TimeUnit.SECONDS);
 		if (System.getProperty("headless") == null
@@ -122,6 +123,14 @@ public abstract class WebDriverInterface extends AutomationInterface {
 	public void interact(String message) {
 		logger.info("Interaction via popup dialog with message: " + message);
 		JOptionPane.showInputDialog(message);
+	}
+
+	/**
+	 * Returns a WebDriverPause object for waiting on some condition
+	 * @return
+	 */
+	public WebDriverPause webDriverPause() {
+		return new WebDriverPause(wd);
 	}
 	
 	/**
@@ -233,7 +242,7 @@ public abstract class WebDriverInterface extends AutomationInterface {
 	 */
 	public void focusFrame(int index) throws CandybeanException {
 		logger.info("Focusing to frame by index: " + index);
-		this.wd.switchTo().frame(index);
+		webDriverPause().waitUntil(WaitConditions.frameToBeAvailableAndSwitchToIt(index), 15000);
 	}
 	
 	/**
@@ -243,7 +252,7 @@ public abstract class WebDriverInterface extends AutomationInterface {
 	 */
 	public void focusFrame(String nameOrId) throws CandybeanException {
 		logger.info("Focusing to frame by name or ID: " + nameOrId);
-		this.wd.switchTo().frame(nameOrId);
+		webDriverPause().waitUntil(WaitConditions.frameToBeAvailableAndSwitchToIt(nameOrId), 15000);
 	}
 	
 	/**
@@ -253,7 +262,7 @@ public abstract class WebDriverInterface extends AutomationInterface {
 	 */
 	public void focusFrame(WebDriverElement wde) throws CandybeanException {
 		logger.info("Focusing to frame by element: " + wde.toString());
-		this.wd.switchTo().frame(wde.we);
+		webDriverPause().waitUntil(WaitConditions.frameToBeAvailableAndSwitchToIt(wde), 15000);
 	}
 	
 	/**
@@ -482,7 +491,11 @@ public abstract class WebDriverInterface extends AutomationInterface {
 	/**
 	 * Determines whether a timeout has occurred since the start time
 	 * @param startTimeMs The start time in milliseconds
+<<<<<<< HEAD
 	 * @param timeoutSec The time in seconds for timeout
+=======
+	 * @param timeoutSec  The time in seconds for timeout
+>>>>>>> 8734bb4... Improved waits
 	 * @return
 	 */
 	private boolean waitForTimeout(long startTimeMs, long timeoutSec) {

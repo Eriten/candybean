@@ -32,7 +32,6 @@ import org.openqa.selenium.interactions.Actions;
 import com.sugarcrm.candybean.automation.element.Element;
 import com.sugarcrm.candybean.automation.element.Hook;
 import com.sugarcrm.candybean.automation.element.Location;
-import com.sugarcrm.candybean.automation.element.Pause;
 import com.sugarcrm.candybean.automation.element.Hook.Strategy;
 import com.sugarcrm.candybean.exceptions.CandybeanException;
 
@@ -44,8 +43,6 @@ import com.sugarcrm.candybean.exceptions.CandybeanException;
  * @author Conrad Warmbold
  */
 public class WebDriverElement extends Element {
-
-	public Pause pause;
 
 	protected WebDriver wd;
 	protected WebElement we;
@@ -70,14 +67,12 @@ public class WebDriverElement extends Element {
 			throw new CandybeanException("Control not found; zero web elements returned.");
 		}
 		this.we = wes.get(index);
-		this.pause = new WebDriverPause(this);
 	}
 
 	public WebDriverElement(Hook hook, int index, WebDriver wd, WebElement we) throws CandybeanException {
 		super(hook, index);
 		this.wd = wd;
 		this.we = we;
-		this.pause = new WebDriverPause(this);
 	}
 
 	/**
@@ -203,6 +198,10 @@ public class WebDriverElement extends Element {
 		return new WebDriverSelector(hook, index, this.wd, childWe); 
 	}
 
+	public Element getSelect(Hook hook) throws CandybeanException {
+		return this.getSelect(hook, 0);
+	}
+
 	 /**
 	 * Get the element child of the given the hook of a parent element
 	 * 
@@ -219,6 +218,10 @@ public class WebDriverElement extends Element {
 				+ " from element: " + this.toString() + " with index: " + index);
 		WebElement childWe = this.we.findElements(WebDriverElement.By(hook)).get(index);
 		return new WebDriverElement(hook, index, this.wd, childWe);
+	}
+
+	public Element getElement(Hook hook) throws CandybeanException {
+		return this.getElement(hook, 0);
 	}
 
 	/**
