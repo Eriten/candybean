@@ -44,8 +44,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  */
 public class WebDriverElement extends Element {
 
-	public Pause pause;
-
 	protected WebDriver wd;
 	protected WebElement we;
 
@@ -69,14 +67,12 @@ public class WebDriverElement extends Element {
 			throw new CandybeanException("Control not found; zero web elements returned.");
 		}
 		this.we = wes.get(index);
-		this.pause = new WebDriverPause(this);
 	}
 
 	public WebDriverElement(Hook hook, int index, WebDriver wd, WebElement we) throws CandybeanException {
 		super(hook, index);
 		this.wd = wd;
 		this.we = we;
-		this.pause = new WebDriverPause(this);
 	}
 
 	/**

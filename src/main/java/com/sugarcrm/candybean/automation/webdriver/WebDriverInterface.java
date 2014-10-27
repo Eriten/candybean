@@ -59,6 +59,8 @@ import com.sugarcrm.candybean.automation.element.Hook;
 import com.sugarcrm.candybean.automation.element.Hook.Strategy;
 import com.sugarcrm.candybean.exceptions.CandybeanException;
 import com.sugarcrm.candybean.utilities.Utils.Pair;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * Drives the creation of multi-platform automation tests by providing a resourceful API
@@ -71,6 +73,7 @@ public abstract class WebDriverInterface extends AutomationInterface {
 	
 	public WebDriver wd = null;
 	private String baseUrl = "";
+
 	private Stack<Pair<Integer, String>> windows = new Stack<Pair<Integer, String>>();
 	
 	protected WebDriverInterface(Type iType) throws CandybeanException {
@@ -85,6 +88,7 @@ public abstract class WebDriverInterface extends AutomationInterface {
 	 */
 	@Override
 	public void start() throws CandybeanException {
+		// Set implicit wait and timeout parameters
 		long implicitWait = Long.parseLong(candybean.config.getValue("perf.implicit.wait.seconds"));
 		wd.manage().timeouts().implicitlyWait(implicitWait, TimeUnit.SECONDS);
 		long pageLoadTimeout = Long.parseLong(candybean.config.getValue("perf.page.load.timeout.seconds"));
@@ -127,6 +131,10 @@ public abstract class WebDriverInterface extends AutomationInterface {
 	public void interact(String message) {
 		logger.info("Interaction via popup dialog with message: " + message);
 		JOptionPane.showInputDialog(message);
+	}
+
+	public WebDriverPause waitUntil() {
+		return new WebDriverPause(wd);
 	}
 	
 	/**
@@ -248,13 +256,13 @@ public abstract class WebDriverInterface extends AutomationInterface {
 	 */
 	public void focusFrame(String nameOrId) throws CandybeanException {
 		logger.info("Focusing to frame by name or ID: " + nameOrId);
-		this.wd.switchTo().frame(nameOrId);
+		this.waitUntil().frameAvailableAndSwitchToIt(15000, nameOrId);
 	}
 	
 	/**
 	 * Switches focus to the IFrame identified by the given {@link Element}
 	 * 
-	 * @param element		The element representing a focus-targeted IFrame
+	 * @param wde		The element representing a focus-targeted IFrame
 	 */
 	public void focusFrame(WebDriverElement wde) throws CandybeanException {
 		logger.info("Focusing to frame by element: " + wde.toString());
@@ -422,7 +430,6 @@ public abstract class WebDriverInterface extends AutomationInterface {
 	}
 	
 	/**
-	 * @param strategy The strategy used to search for the control
 	 * @param hook The associated hook for the strategy
 	 * @return The list of all controls that match the strategy and hook
 	 * @throws CandybeanException 
@@ -487,8 +494,8 @@ public abstract class WebDriverInterface extends AutomationInterface {
 	
 	/**
 	 * Determines whether a timeout has occurred since the start time
-	 * @param startTime The start time in milliseconds
-	 * @param timeout The time in seconds for timeout
+	 * @param startTimeMs The start time in milliseconds
+	 * @param timeoutSec  The time in seconds for timeout
 	 * @return
 	 */
 	private boolean waitForTimeout(long startTimeMs, long timeoutSec) {

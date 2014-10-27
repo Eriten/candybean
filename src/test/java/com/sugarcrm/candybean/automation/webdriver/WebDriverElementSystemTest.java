@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
 import com.sugarcrm.candybean.automation.AutomationInterface.Type;
 import com.sugarcrm.candybean.automation.Candybean;
 import com.sugarcrm.candybean.automation.AutomationInterfaceBuilder;
-import com.sugarcrm.candybean.automation.webdriver.WebDriverElement;
 import com.sugarcrm.candybean.automation.element.Hook;
 import com.sugarcrm.candybean.automation.element.Hook.Strategy;
 import com.sugarcrm.candybean.exceptions.CandybeanException;
@@ -178,7 +177,7 @@ public class WebDriverElementSystemTest {
 		iface.pause(timeout);
 		iface.getWebDriverElement(Strategy.XPATH, "//*[@id=\"test\"]/p[1]/button[1]").click();
 		startTime = System.currentTimeMillis();
-		textControl.pause.untilVisible(timeout);
+		iface.waitUntil().visible(10000, textControl);
 		endTime = System.currentTimeMillis();
 		Assert.assertTrue((endTime - startTime) / Long.parseLong("1000") < (long)timeout);
 	}
@@ -193,7 +192,7 @@ public class WebDriverElementSystemTest {
 		showAlertButton.click();
 		iface.pause(500);
 		WebDriverElement delayAlert = iface.getWebDriverElement(new Hook(Strategy.CSS, ".hentry .quick-alert"));
-		delayAlert.pause.untilVisible((int)timeoutMilliSec);
+		iface.waitUntil().visible((int)timeoutMilliSec, delayAlert);
 		Assert.assertTrue(delayAlert.isDisplayed());
 		
 		/* 
