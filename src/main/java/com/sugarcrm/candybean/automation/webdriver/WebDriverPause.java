@@ -63,7 +63,7 @@ public class WebDriverPause<T> {
 		Object toReturn = null;
 		do {
 			try {
-				toReturn = (new WebDriverWait(this.wd, wdPollingInterval / 1000)).until(condition);
+				toReturn = (new WebDriverWait(this.wd, 30000 / 1000)).until(condition);
 				toThrow = null;
 				break;
 			} catch (WebDriverException wdException) {

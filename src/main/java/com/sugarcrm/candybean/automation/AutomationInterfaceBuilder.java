@@ -151,7 +151,7 @@ public class AutomationInterfaceBuilder {
 		String testClassName = cls.getSimpleName();
 		// Required if we are using saucelabs.
 		SaucelabsInterface sauceInterface = new SaucelabsInterface(type);
-//		GridInterface gridInterface = new GridInterface(type);
+		GridInterface gridInterface = new GridInterface(type);
 		switch (type) {
 		case FIREFOX:
 			iface = new FirefoxInterface();
@@ -226,7 +226,17 @@ public class AutomationInterfaceBuilder {
 		default:
 			throw new CandybeanException("WebDriver automation interface type not recognized: " + type);
 		}
-		if (Boolean.parseBoolean(candybean.config.getValue("saucelabs.enabled"))) {
+
+		boolean isSaucelabsEnabled = Boolean.parseBoolean(candybean.config.getValue("saucelabs.enabled"));
+		boolean isGridEnabled = Boolean.parseBoolean(candybean.config.getValue("grid.enabled"));
+
+		if(isGridEnabled && isSaucelabsEnabled) {
+			logger.severe("Saucelabs and Grid should not be enabled at the same time.");
+			return iface;
+		} else if(isGridEnabled) {
+			logger.info("Grid was enabled by the user, using grid to carry out the tests for the interface: "+ type);
+			return gridInterface;
+		} else if (isSaucelabsEnabled) {
 			logger.info("Saucelabs was enabled by the user, using saucelabs to carry out the tests for the interface: "+ type);
 			// Add any desired capabilities if we are running mobile tests on saucelabs.
 			return sauceInterface;
