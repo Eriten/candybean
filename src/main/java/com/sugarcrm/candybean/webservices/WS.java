@@ -113,6 +113,9 @@ public class WS {
 			default:
 				throw new Exception("WS:OP type not recognized.");
 		}
+
+		System.out.println("Debug:WS:request(...) - The operation is " + op.name());
+		System.out.println("Debug:WS:request(...) - is mapParse null? " + mapParse == null);
 		
 		return mapParse;
 	}
@@ -132,24 +135,33 @@ public class WS {
 		HttpResponse execute = null;
         try {
 			execute = httpClient.execute(request);
+			System.out.println("Debug:WS:requestIt(...) - is execute null? " + execute == null);
 		} catch (IOException e) {
+			System.out.println("Debug:WS:requestIt(...) - Exception is thrown 1");
 			e.printStackTrace();
 		}
 		
 		httpErrorSimpleCheckHttp(execute);
 
 		HttpEntity entity = execute.getEntity();
+		System.out.println("Debug:WS:requestIt(...) - is entity null? " + entity == null);
 
 		JSONObject parse = null;
 		try {
 			parse = (JSONObject) JSONValue.parse(new InputStreamReader(entity
 					.getContent()));
+			System.out.println("Debug:WS:requestIt(...) - is parse null? " + parse == null);
+			if(parse != null) {
+				System.out.println(parse.toJSONString());
+			}
 		} catch (IllegalStateException | IOException e) {
+			System.out.println("Debug:WS:requestIt(...) - Exception is thrown 2");
 			e.printStackTrace();
 		}
 
 		@SuppressWarnings("unchecked")
 		Map<String, Object> mapParse = (Map<String, Object>) parse;
+		System.out.println("Debug:WS:requestIt(...) - is mapParse null? " + mapParse == null);
 
 		return mapParse;
 	}
@@ -163,6 +175,7 @@ public class WS {
 			try {
 				post.setEntity(new StringEntity(body));
 			} catch (UnsupportedEncodingException e1) {
+				System.out.println("Debug:WS:postRequest(...) - Exception is thrown 1");
 				e1.printStackTrace();
 			}
 		}
@@ -171,7 +184,9 @@ public class WS {
 		HttpResponse execute = null;
 		try {
 			execute = defaultHttpClient.execute(post);
+			System.out.println("Debug:WS:postRequest(...) - is execute null? " + execute == null);
 		} catch (IOException e) {
+			System.out.println("Debug:WS:postRequest(...) - Exception is thrown 2");
 			e.printStackTrace();
 		}
 
@@ -183,12 +198,18 @@ public class WS {
 		try {
 			parse = (JSONObject) JSONValue.parse(new InputStreamReader(entity
 					.getContent()));
+			System.out.println("Debug:WS:postRequest(...) - is parse null? " + parse == null);
+			if(parse != null) {
+				System.out.println(parse.toJSONString());
+			}
 		} catch (IllegalStateException | IOException e) {
+			System.out.println("Debug:WS:postRequest(...) - Exception is thrown 3");
 			e.printStackTrace();
 		}
 
 		@SuppressWarnings("unchecked")
 		Map<String, Object> mapParse = (Map<String, Object>) parse;
+		System.out.println("Debug:WS:postRequest(...) - is mapParse null? " + mapParse == null);
 
 		return mapParse;
 	}
@@ -211,6 +232,7 @@ public class WS {
 	private static void httpErrorSimpleCheckHttp(HttpResponse execute) {
 
 		int code = execute.getStatusLine().getStatusCode();
+
 		if (code != 200) {
 			throw new RuntimeException("Failed : HTTP error code : " + code);
 		}
