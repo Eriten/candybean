@@ -3,6 +3,7 @@ package com.sugarcrm.candybean.automation.webdriver;
 import java.io.File;
 import java.io.IOException;
 
+import com.sugarcrm.candybean.utilities.OSValidator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -25,17 +26,26 @@ public class ChromeInterface extends WebDriverInterface {
 		chromeOptions.addArguments("--log-path=" + chromeDriverLogPath);
 
 		String chromeDriverPath = candybean.config.getPathValue("browser.chrome.driver.path");
-		valdiateChromeDriverExist(chromeDriverPath);
+		validateChromeDriverExist(chromeDriverPath);
 
 		// If parallel is enabled and the chromedriver-<os>_<thread-name> doesn't exist, duplicate one
 		// from chromedriver-<os> and give it executable permission.
 		if("true".equals(candybean.config.getPathValue("parallel.enabled"))) {
 			String originalChromePath = chromeDriverPath;
-			chromeDriverPath = chromeDriverPath.replaceAll("$", "_" + Thread.currentThread().getName());
+			// Cross platform support
+			if(OSValidator.isWindows()) {
+				chromeDriverPath = chromeDriverPath.replaceAll("(.*)(\\.exe)", "$1_" +
+						Thread.currentThread().getName() + "$2");
+			} else {
+				chromeDriverPath = chromeDriverPath.replaceAll("$", "_" + Thread.currentThread().getName());
+			}
+
 			if(!new File(chromeDriverPath).exists()) {
 				try {
 					FileUtils.copyFile(new File(originalChromePath), new File(chromeDriverPath));
-					Runtime.getRuntime().exec("chmod u+x " + chromeDriverPath);
+					if(!OSValidator.isWindows()) { //Not needed in Windows
+						Runtime.getRuntime().exec("chmod u+x " + chromeDriverPath);
+					}
 				} catch(IOException e) {
 					String error = "Cannot duplicate a new chromedriver for parallelization";
 					logger.severe(error);
@@ -53,10 +63,10 @@ public class ChromeInterface extends WebDriverInterface {
 		super.start(); // requires wd to be instantiated first
 	}
 
-	private void valdiateChromeDriverExist(String chromeDriverPath) throws CandybeanException {
+	private void validateChromeDriverExist(String chromeDriverPath) throws CandybeanException {
 		if(StringUtils.isEmpty(chromeDriverPath) || !new File(chromeDriverPath).exists()) {
-			String error = "Unable to find chrome browser driver from the specified location ("+chromeDriverPath+")  in the configuration file! \n"
-					+ "Please add a configuration to the candybean config file for key \"browser.chrome.driver.path\" "
+			String error = "Unable to find chrome browser driver from the specified location ("+chromeDriverPath+") " +
+					"in the configuration file! \n Please add a configuration to the candybean config file for key \"browser.chrome.driver.path\" "
 					+ "that indicates the absolute or relative location the driver.";
 			logger.severe(error);
 			throw new CandybeanException(error);
