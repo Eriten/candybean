@@ -44,13 +44,14 @@ import static java.lang.System.currentTimeMillis;
 public class WebDriverPause {
 	private WebDriver wd;
 	private long defaultTimeoutMs;
-	private static final long WD_POLLING_INTERVAL = 1000;
+	private long pollingIntervalS;
 
 	public Logger logger;
 
-	public WebDriverPause(WebDriver wd, long defaultTimeoutMs) {
+	public WebDriverPause(WebDriver wd, long defaultTimeoutMs, long pollingIntervalS) {
 		this.wd = wd;
-		this.defaultTimeoutMs = defaultTimeoutMs;
+		this.defaultTimeoutMs = defaultTimeoutMs * 1000;
+		this.pollingIntervalS = defaultTimeoutMs <= pollingIntervalS ? defaultTimeoutMs : pollingIntervalS;
 		this.logger = Logger.getLogger(Candybean.class.getSimpleName());
 	}
 
@@ -62,29 +63,23 @@ public class WebDriverPause {
 	 * @throws CandybeanException
 	 */
 	public Object waitUntil(ExpectedCondition condition, long timeoutMs) throws CandybeanException {
-		long wdPollingInterval = WD_POLLING_INTERVAL;
-		if(timeoutMs <= WD_POLLING_INTERVAL) {
-			wdPollingInterval = timeoutMs;
-		}
-
 		// This is done by double-polling. WebDriverWait waits for wdPollingInterval amount of time.
 		// This is done repetitively until the time reaches timeoutMs.
 		final long startTime = currentTimeMillis();
-		long currentTime = 0;
+		long currentTime;
 		CandybeanException toThrow = null;
 		Object toReturn = null;
 
-		while(currentTime <= timeoutMs) {
+		while((currentTime = currentTimeMillis() - startTime) <= timeoutMs) {
 			try {
 				logger.info(currentTime + " milliseconds have passed. Waiting until " + condition.toString() +
 						" is satisfied.");
-				toReturn = (new WebDriverWait(this.wd, wdPollingInterval / 1000)).until(condition);
+				toReturn = (new WebDriverWait(this.wd, pollingIntervalS)).until(condition);
 				toThrow = null;
 				break;
 			} catch (WebDriverException wdException) {
 				toThrow = new CandybeanException(wdException.toString());
 			}
-			currentTime = currentTimeMillis() - startTime;
 		}
 
 		if(toThrow != null) {
