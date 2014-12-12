@@ -116,9 +116,9 @@
 			-Dversion=0.7.7 -Dpackaging=jar
 		-->
 		<dependency>
-			<groupId>org.monte</groupId>
-			<artifactId>cc</artifactId>
-			<version>0.7.7</version>
+			<groupId>com.pojosontheweb</groupId>
+			<artifactId>monte-repack</artifactId>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>xml-apis</groupId>
